@@ -1,0 +1,131 @@
+From fcb9d9162634dd40f0fa15845236f219d260ef84 Mon Sep 17 00:00:00 2001
+From: suxingyu96 <sugefey@gmail.com>
+Date: Mon, 3 Jan 2022 13:59:28 +0000
+Subject: [PATCH] Create Patch File
+
+---
+ client.py      |  10 +++++++---
+ client.pyc     | Bin 0 -> 1470 bytes
+ client_test.py |  30 +++++++++++++++++++++++++++++-
+ 3 files changed, 36 insertions(+), 4 deletions(-)
+ create mode 100644 client.pyc
+
+diff --git a/client.py b/client.py
+index 40badcd..5ca170c 100644
+--- a/client.py
++++ b/client.py
+@@ -35,14 +35,16 @@ def getDataPoint(quote):
+ 	stock = quote['stock']
+ 	bid_price = float(quote['top_bid']['price'])
+ 	ask_price = float(quote['top_ask']['price'])
+-	price = bid_price
++	price = (bid_price+ask_price)/2
+ 	return stock, bid_price, ask_price, price
+ 
+ def getRatio(price_a, price_b):
+ 	""" Get ratio of price_a and price_b """
+ 	""" ------------- Update this function ------------- """
+ 	""" Also create some unit tests for this function in client_test.py """
+-	return 1
++	if(price_b==0):
++		return 
++	return price_a/price_b
+ 
+ # Main
+ if __name__ == "__main__":
+@@ -52,8 +54,10 @@ if __name__ == "__main__":
+ 		quotes = json.loads(urllib2.urlopen(QUERY.format(random.random())).read())
+ 
+ 		""" ----------- Update to get the ratio --------------- """
++		prices={}
+ 		for quote in quotes:
+ 			stock, bid_price, ask_price, price = getDataPoint(quote)
++			prices[stock]=price
+ 			print "Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price)
+ 
+-		print "Ratio %s" % getRatio(price, price)
++		print "Ratio %s" % getRatio(prices['ABC'], prices['DEF'])
+diff --git a/client.pyc b/client.pyc
+new file mode 100644
+index 0000000000000000000000000000000000000000..8349a7d57c9e56b3899d01677117490feed09721
+GIT binary patch
+literal 1470
+zcmcIjOK;mo5dQeEVkvUs_>o4pZGoT+P?bqefsyoOyD19PaAX)kh!zCR9b1$sQs%A#
+z8<kJ)y+5EopqKud{*@N!v7K2-Y0-N~?(EF$y!T`9$6Dv-zkbhhES_7uf5FSFd4T56
+zLkT4Bcn^uU)cZ*MB_ALOpji__Grs~I;wN@&L9aOG7HAc^g>xTG+q?V?)CR5K#>3tZ
+zzaZ&=e2i{`fKe9|VzdSdFbZ%3G2(A@XTc|TQE=#WT<(MJvi}Pt_dqSsJ+b>fM6!Wo
+z6Ui2mZ4iI!pbb3NT*C%v6SO7T(-8Mxesl3FUh7p5pRGf;(UYx%-i_~0&+xi(Q#gul
+z^H_?%`8hBjGCQ<(vJ=N;ooD5+Hg@OP<7bcKizzi%pBMVYkJrVYJi?q8R(OTHc6pgY
+zCNmeZckRK>1s^>gTaT;1_LsWwUtNHik6C~Zc$nMQA!gn}F$<-Qqo^g3cbKTdrq<J(
+zR92R%K2>%|sv^>))!VF`l2Nu+XH-#>SvFESv)QCBDyytiX>6UJTLFQsC+SI{op#a`
+zIla?n=DhIPB9hkJ`Ds~aHWGg)UQBCC1D0UhOgKt9k026z&!vHjAy$zPbIc?@Hq@Bd
+zOfQS->}neCkvZo=;_(&x)FaBRiAR%hKObg>giFWVZAs~q_}jzpcKep{Vc&9!{*yQ_
+z3##m=lPlZh$Y*5txYa|~s-){MLD2EG_`T!hQp|F>YkI&69y8-#5X+eGam3fgs_mmF
+z;6w8f6ZMj;;!zg04BK^?W-6=nf<IA=RN%n17)b&*#)aX3_>;MX7{A9!ta5ms#6Svu
+zB&h^92)kbBSvgD7aaL4mYCdM+m0Y7%4~@#Kiue|H9-2=S57+Ik1?C<ZadZ*c)XHSO
+z{A$<jd;4EU_gQvrPMfkUPM%u%4{R|e$Bax}S*fAnk=0{|o>#~FgEv;Nbue(D<-c20
+zS7l>LQ|EEXF5HUPrOuBrsLe7}J>k2Tz^8RH&a6w;P^O*E;nO(QbzueqT?g2K_zVR9
+s|AS}5s`q^}&*xzNY+F((CSA|HK`UtaZGO7Jrq>Tz-kSHo>v%o?A5EW1qyPW_
+
+literal 0
+HcmV?d00001
+
+diff --git a/client_test.py b/client_test.py
+index a608a01..df0633b 100644
+--- a/client_test.py
++++ b/client_test.py
+@@ -1,5 +1,6 @@
+ import unittest
+ from client import getDataPoint
++from client import getRatio
+ 
+ class ClientTest(unittest.TestCase):
+   def test_getDataPoint_calculatePrice(self):
+@@ -8,6 +9,8 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote),(quote['stock'],quote['top_bid']['price'],quote['top_ask']['price'],(quote['top_bid']['price']+quote['top_ask']['price'])/2))
+ 
+   def test_getDataPoint_calculatePriceBidGreaterThanAsk(self):
+     quotes = [
+@@ -15,9 +18,34 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote),(quote['stock'],quote['top_bid']['price'],quote['top_ask']['price'],(quote['top_bid']['price']+quote['top_ask']['price'])/2))
+ 
++  """ ------------ more unit tests ------------ """
++  def test_getRatio_calculateRatio(self):
++    quotes = [
++      {'top_ask': {'price': 119.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
++      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
++    ]
++    for quote in quotes:
++      self.assertEqual(getRatio(quote['top_bid']['price'],quote['top_ask']['price']),(quote['top_bid']['price']/quote['top_ask']['price']))
++  """ ------------ more unit tests whether price_b!=0 ------------ """
++  def test_getRatio_checkPriceB(self):
++    quotes = [
++      {'top_ask': {'price': 119.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
++      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
++    ]
++    for quote in quotes:
++      self.assertNotEqual(quote['top_bid']['price'],0)
+ 
+-  """ ------------ Add more unit tests ------------ """
++  """ ------------ more unit tests whether price_a!=0 ------------ """
++  def test_getRatio_checkPriceA(self):
++    quotes = [
++      {'top_ask': {'price': 119.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
++      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
++    ]
++    for quote in quotes:
++      self.assertNotEqual(quote['top_ask']['price'],0)
+ 
+ 
+ 
+-- 
+2.32.0 (Apple Git-132)
+
